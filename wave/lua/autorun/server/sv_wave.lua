@@ -5,24 +5,19 @@ resource.AddWorkshop("886132509") -- SMG's
 resource.AddWorkshop("886132509") -- Rifles
 resource.AddWorkshop("886146194") -- Rangend Rifles
 -- Waffen
-resource.AddWorkshop("849418506") -- Dumbus Waifu
-resource.AddWorkshop("974221698") -- Big Tiddy Anime Girl
 resource.AddWorkshop("1199872159") -- Der Bankier
---NPC/Playermodel
-resource.AddWorkshop("700550896") -- MAP Content
-resource.AddWorkshop("1417950030") -- MAP
---Map + Map Content
+-- NPC/Playermodel
+resource.AddWorkshop("667484197") -- MAP 
+-- Map + Map Content
 resource.AddFile("wave/pumped.wav")
---Sounddatei "geht aber nicht"
+-- Sounddatei "geht aber nicht"
 util.AddNetworkString("playerspawns")
 util.AddNetworkString("pumped")
 local counterfuerdiewelle = 30
---local Timestamp = os.time()
---local TimeString = os.date("%d.%m.%Y - %H:%M:%S", Timestamp)
 
 hook.Add("PlayerInitialSpawn", "joinnachricht", function(ply)
     net.Start("playerspawns")
-    net.WriteString(ply:Nick())
+    net.WriteString(ply:Name())
     net.Broadcast()
     SchoolS.Spieler[ply:SteamID64()] = SchoolS.Spieler[ply:SteamID64()] or {}
     SchoolS.Spieler[ply:SteamID64()].counter = 0
@@ -44,7 +39,6 @@ hook.Add("PlayerInitialSpawn", "joinnachricht", function(ply)
 end)
 
 hook.Add("PlayerDeath", "wennderspielerstirbt", function(victim, inflictor, attacker)
-    SchoolS.Spieler[victim:SteamID64()].counter = 0
     SchoolS.Spieler[victim:SteamID64()].heavyweg.heavy1 = 0
     SchoolS.Spieler[victim:SteamID64()].heavyweg.heavy2 = 0
     SchoolS.Spieler[victim:SteamID64()].heavyweg.heavy3 = 0
@@ -53,54 +47,29 @@ hook.Add("PlayerDeath", "wennderspielerstirbt", function(victim, inflictor, atta
     SchoolS.Spieler[victim:SteamID64()].agilweg.agil2 = 0
     SchoolS.Spieler[victim:SteamID64()].agilweg.agil3 = 0
     SchoolS.Spieler[victim:SteamID64()].agilweg.agil4 = 0
-    victim:SetModel("models/iaschool/iaschool_pm.mdl")
+    SchoolS.Spieler[victim:SteamID64()].counter = 0
     victim:StripWeapons()
     victim:StripAmmo()
-
-    timer.Simple(3, function()
-        victim:SetWalkSpeed("300")
-        victim:SetRunSpeed("300")
-        victim:Give("khr_gsh18")
-        victim:SetAmmo(150, "9x19MM", true)
-    end)
 end)
 
 hook.Add("PlayerSpawn", "PlayerSpawnTest", function(ply)
-    ply:SetModel("models/iaschool/iaschool_pm.mdl")
-
-    timer.Simple(00000.1, function()
-        ply:Freeze(true)
+    timer.Simple(0.1, function()
+        ply:StripWeapons()
         ply:Give("khr_gsh18")
-        ply:SetWalkSpeed("300")
-        ply:SetRunSpeed("300")
+        ply:SelectWeapon("khr_gsh18")
         ply:SetAmmo(150, "9x19MM", true)
-        ply:StripWeapon("weapon_shotgun")
-        ply:StripWeapon("weapon_smg1")
-        ply:StripWeapon("weapon_357")
-        ply:StripWeapon("weapon_crowbar")
-        ply:StripWeapon("weapon_pistol")
-        ply:StripWeapon("weapon_physcannon")
-        ply:StripWeapon("weapon_crossbow")
-        ply:StripWeapon("weapon_rpg")
-        ply:StripWeapon("weapon_ar2")
-        ply:StripWeapon("weapon_frag")
-        ply:StripWeapon("weapon_frag")
-        ply:StripWeapon("gmod_camera")
-        ply:StripWeapon("weapon_physgun")
-        ply:StripWeapon("gmod_tool")
-    end)
-
-    timer.Simple(10, function()
-        ply:Freeze(false)
     end)
 end)
 
 hook.Add("OnNPCKilled", "killcount", function(npc, attacker, inflictor)
+    --Timestamp = os.time()
+    --local TimeString = os.date("%d.%m.%Y - %H:%M:%S", Timestamp)
+    --file.Append("meinlog/draklog.txt", "\n[" .. TimeString .. "] test wurde getötet von: " .. attacker .. "!")
+    --file.Append("meinlog/draklog.txt", "test")
     if attacker:IsPlayer() then
         counterfuerdiewelle = counterfuerdiewelle - 1
         SchoolS.Spieler[attacker:SteamID64()].counter = SchoolS.Spieler[attacker:SteamID64()].counter + 1
         attacker:ChatPrint("Die Zahl deiner eliminierten Gegner beträgt " .. SchoolS.Spieler[attacker:SteamID64()].counter .. "! Die Verbliebenden sind: " .. counterfuerdiewelle .. "!")
-        --file.Append("unsertest/draklog.txt", "\n[" .. TimeString .. "] " .. npc .. " wurde getötet von: " .. attacker .. "!")
     end
 end)
 
@@ -124,6 +93,11 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
         -- Codes, die ich gebrauche um verschiedene Sachen im Game umzustellen
 
         return ""
+    elseif string.lower(text) == "gimme" then
+        SchoolS.Spieler[ply:SteamID64()].counter = SchoolS.Spieler[ply:SteamID64()].counter + 20
+        ply:ChatPrint("Du hast deine Zahl automatisch um 20 Punkte auf: " .. SchoolS.Spieler[ply:SteamID64()].counter .. " erhöht!")
+
+        return ""
     elseif string.lower(text) == "unfreeze" then
         --file.Append("unsertest/befehle.txt", "\n[" .. TimeString .. "] " .. ply .. " hat folgenden Befehl eingegeben: " .. text)
         ply:Freeze(false)
@@ -136,25 +110,34 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
         return ""
     elseif string.lower(text) == "s" then
         --Hab kein Bock immer "kill" in der Konsole einzutippen
-        ply:Kill()
+        ply:KillSilent()
 
         return ""
     elseif string.lower(text) == "cleanup" then
         game.CleanUpMap()
+        timer.Stop("wellestarten")
 
         return ""
     elseif string.lower(text) == "wellestart" then
         game.CleanUpMap()
-        net.Start("pumped")
-        net.WriteBool(true)
-        net.Broadcast()
+        --net.Start("pumped")
+        --net.WriteBool(true)
+        --net.Broadcast()
+        counterfuerdiewelle = 36
 
         -- Der komplette Code, um eine Welle zu starten
         for k, v in pairs(player.GetAll()) do
             v:Spawn()
+
+            timer.Simple(1, function()
+                v:Give("khr_gsh18")
+                v:SelectWeapon("khr_gsh18")
+                v:SetAmmo(150, "9x19MM", true)
+                v:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
+            end)
         end
 
-        for i = 1, 31 do
+        for i = 1, 36 do
             timer.Simple(2, function()
                 if i <= 10 then
                     local npc1 = ents.Create("npc_metropolice")
@@ -171,23 +154,119 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
                     npc3:SetPos(SchoolS.NPCSpawnPos[i])
                     npc3:Spawn()
                     npc3:Give("weapon_smg1")
-                    counterfuerdiewelle = counterfuerdiewelle + 30
                 end
             end)
         end
+
+        timer.Simple(55, function()
+            for k, v in pairs(player.GetAll()) do
+                v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 5 Sekunden")
+            end
+        end)
+
+        timer.Simple(56, function()
+            for k, v in pairs(player.GetAll()) do
+                v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 4 Sekunden")
+            end
+        end)
+
+        timer.Simple(57, function()
+            for k, v in pairs(player.GetAll()) do
+                v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 3 Sekunden")
+            end
+        end)
+
+        timer.Simple(58, function()
+            for k, v in pairs(player.GetAll()) do
+                v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 2 Sekunden")
+            end
+        end)
+
+        timer.Simple(59, function()
+            for k, v in pairs(player.GetAll()) do
+                v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 1 Sekunden")
+            end
+        end)
+
+        timer.Create("wellestarten", 60, 4, function()
+            game.CleanUpMap()
+            counterfuerdiewelle = 36
+
+            for k, v in pairs(player.GetAll()) do
+                timer.Simple(4, function()
+                    v:Spawn()
+                    v:Give("khr_gsh18")
+                    v:SetAmmo(150, "9x19MM", true)
+                    v:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
+                end)
+            end
+
+            for i = 1, 36 do
+                timer.Simple(2, function()
+                    if i <= 10 then
+                        local npc1 = ents.Create("npc_metropolice")
+                        npc1:SetPos(SchoolS.NPCSpawnPos[i])
+                        npc1:Spawn()
+                        npc1:Give("weapon_smg1")
+                    elseif i <= 20 and i > 10 then
+                        local npc2 = ents.Create("npc_metropolice")
+                        npc2:SetPos(SchoolS.NPCSpawnPos[i])
+                        npc2:Spawn()
+                        npc2:Give("weapon_smg1")
+                    elseif i <= 30 and i > 20 then
+                        local npc3 = ents.Create("npc_metropolice")
+                        npc3:SetPos(SchoolS.NPCSpawnPos[i])
+                        npc3:Spawn()
+                        npc3:Give("weapon_smg1")
+                    end
+                end)
+            end
+
+            timer.Simple(55, function()
+                for k, v in pairs(player.GetAll()) do
+                    v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 5 Sekunden")
+                end
+            end)
+
+            timer.Simple(56, function()
+                for k, v in pairs(player.GetAll()) do
+                    v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 4 Sekunden")
+                end
+            end)
+
+            timer.Simple(57, function()
+                for k, v in pairs(player.GetAll()) do
+                    v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 3 Sekunden")
+                end
+            end)
+
+            timer.Simple(58, function()
+                for k, v in pairs(player.GetAll()) do
+                    v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 2 Sekunden")
+                end
+            end)
+
+            timer.Simple(59, function()
+                for k, v in pairs(player.GetAll()) do
+                    v:PrintMessage(HUD_PRINTTALK, "Das Spiel startet eine neue Runde in 1 Sekunden")
+                end
+            end)
+        end)
+
+        return ""
     elseif string.lower(text) == "agil" and SchoolS.Spieler[ply:SteamID64()].counter >= 10 then
         -- Die Wege
         ply:PrintMessage(HUD_PRINTTALK, "Du gehst nun den agilen Weg!")
-        ply:KillSilent()
         ply:Spawn()
 
         timer.Create("agil1", 1, 2, function()
             if SchoolS.Spieler[ply:SteamID64()].agilweg.agil1 == 0 then
                 ply:SetRunSpeed("200")
                 ply:SetWalkSpeed("220")
-                ply:SetModel("models/player/dewobedil/sharo_kirima/maid_p.mdl")
+                ply:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
                 ply:StripWeapons()
                 ply:StripAmmo()
+                ply:PrintMessage(HUD_PRINTTALK, "Du kannst deine Klasse mit mit 30 Eliminierungen mit dem Befehl: upgradea ändern.")
                 SchoolS.Spieler[ply:SteamID64()].agilweg.agil1 = 1
             elseif SchoolS.Spieler[ply:SteamID64()].agilweg.agil1 == 1 then
                 ply:Give("khr_rugermk3")
@@ -197,16 +276,15 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
 
         return ""
     elseif string.lower(text) == "heavy" and SchoolS.Spieler[ply:SteamID64()].counter >= 10 then
-        ply:PrintMessage(HUD_PRINTTALK, "Du gehst nun den schweren Weg!")
-        ply:KillSilent()
         ply:Spawn()
+        ply:PrintMessage(HUD_PRINTTALK, "Du gehst nun den schweren Weg!")
 
         timer.Create("heavy1", 1, 2, function()
             timer.Simple(1, function()
                 if SchoolS.Spieler[ply:SteamID64()].heavyweg.heavy1 == 0 then
                     ply:SetWalkSpeed("165")
                     ply:SetRunSpeed("175")
-                    ply:SetModel("models/player/dewobedil/maid_dragon/lucoa/default_p.mdl")
+                    ply:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
                     ply:StripWeapons()
                     ply:StripAmmo()
                     SchoolS.Spieler[ply:SteamID64()].heavyweg.heavy1 = 1
@@ -223,7 +301,7 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
 
         return ""
     elseif (string.lower(text) == "upgradea" and SchoolS.Spieler[ply:SteamID64()].agilweg.agil1 == 2 and SchoolS.Spieler[ply:SteamID64()].counter >= 30) then
-        ply:KillSilent()
+        ply:Spawn()
         ply:StripWeapons()
         ply:StripAmmo()
         ply:Spawn()
@@ -232,24 +310,23 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
             ply:Give("khr_p90")
             ply:SetWalkSpeed("210")
             ply:GiveAmmo(200, "5.7x28MM", true)
-            ply:SetModel("models/player/dewobedil/sharo_kirima/maid_p.mdl")
+            ply:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
             SchoolS.Spieler[ply:SteamID64()].agilweg.agil2 = 1
             ply:PrintMessage(HUD_PRINTTALK, "Du kannst deine Klasse mit mit 45 Eliminierungen mit dem Befehl: upgradea1 ändern.")
         end)
 
         return ""
     elseif (string.lower(text) == "upgradeh" and SchoolS.Spieler[ply:SteamID64()].heavyweg.heavy1 == 2 and SchoolS.Spieler[ply:SteamID64()].counter >= 30) then
+        ply:Spawn()
         ply:SetWalkSpeed("175")
         ply:SetRunSpeed("175")
-        ply:KillSilent()
         ply:StripWeapons()
         ply:StripAmmo()
-        ply:Spawn()
 
         timer.Simple(1, function()
             ply:Give("khr_cz858")
             ply:GiveAmmo(200, "7.62x39MM", true)
-            ply:SetModel("models/player/dewobedil/sharo_kirima/maid_p.mdl")
+            ply:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
             ply:PrintMessage(HUD_PRINTTALK, "Du kannst deine Klasse mit mit 45 Eliminierungen mit dem Befehl: upgradeh1 ändern.")
             SchoolS.Spieler[ply:SteamID64()].heavyweg.heavy2 = 1
         end)
@@ -258,7 +335,6 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
     elseif (string.lower(text) == "upgradea1" and SchoolS.Spieler[ply:SteamID64()].agilweg.agil2 == 1 and SchoolS.Spieler[ply:SteamID64()].counter >= 45) then
         ply:SetRunSpeed("240")
         ply:SetWalkSpeed("230")
-        ply:KillSilent()
         ply:StripWeapons()
         ply:StripAmmo()
         ply:Spawn()
@@ -267,7 +343,7 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
             ply:Give("khr_aek971")
             ply:SetWalkSpeed("220")
             ply:GiveAmmo(200, "5.45x39MM", true)
-            ply:SetModel("models/player/dewobedil/sharo_kirima/maid_p.mdl")
+            ply:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
             SchoolS.Spieler[ply:SteamID64()].agilweg.agil3 = 1
             ply:PrintMessage(HUD_PRINTTALK, "Du kannst deine Klasse mit mit 60 Eliminierungen mit dem Befehl: upgradea2 ändern.")
         end)
@@ -276,7 +352,6 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
     elseif (string.lower(text) == "upgradeh1" and SchoolS.Spieler[ply:SteamID64()].heavyweg.heavy2 == 1 and SchoolS.Spieler[ply:SteamID64()].counter >= 45) then
         ply:SetWalkSpeed("165")
         ply:SetRunSpeed("175")
-        ply:KillSilent()
         ply:StripWeapons()
         ply:StripAmmo()
         ply:Spawn()
@@ -284,14 +359,13 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
         timer.Simple(1, function()
             ply:Give("khr_pkm")
             ply:GiveAmmo(300, "7.62x54MMR", true)
-            ply:SetModel("models/player/dewobedil/sharo_kirima/maid_p.mdl")
+            ply:SetModel("models/player/suits/npc/the_ortho_jew.mdl")
             SchoolS.Spieler[ply:SteamID64()].heavyweg.heavy3 = 1
             ply:PrintMessage(HUD_PRINTTALK, "Du kannst deine Klasse mit mit 60 Eliminierungen mit dem Befehl: upgradeh2 ändern.")
         end)
     elseif (string.lower(text) == "upgradea2" and SchoolS.Spieler[ply:SteamID64()].agilweg.agil3 == 1 and SchoolS.Spieler[ply:SteamID64()].counter >= 60) then
         ply:SetWalkSpeed("220")
         ply:SetRunSpeed("230")
-        ply:KillSilent()
         ply:StripWeapons()
         ply:StripAmmo()
         ply:Spawn()
@@ -305,12 +379,11 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
             ply:PrintMessage(HUD_PRINTTALK, "Der Weg ist hiermit zu ende, danke für's spielen! Natürlich bedanke ich mich auch bei diesen Leuten die mir dabei geholfen haben: Hiraku, Berkaaay, Screed.")
         end)
     elseif (string.lower(text) == "upgradeh2" and SchoolS.Spieler[ply:SteamID64()].heavyweg.heavy3 == 1 and SchoolS.Spieler[ply:SteamID64()].counter >= 60) then
+        ply:Spawn()
         ply:SetWalkSpeed("160")
         ply:SetRunSpeed("175")
-        ply:KillSilent()
         ply:StripWeapons()
         ply:StripAmmo()
-        ply:Spawn()
 
         timer.Simple(1, function()
             ply:Give("khr_hmg")
@@ -324,109 +397,8 @@ hook.Add("PlayerSay", "hilfesowiewellestarten", function(ply, text)
         return ""
     end
 end)
---[[
 
+hook.Add("Think", "waffen", function() end)
+--[=[
 
-hook.Add("Think", "wenndiedrecksnpcsihreverdammtewaffedroppen", function(npc, ply)
-if npc1 or npc2 or npc3 DropObject() then
-    clean
-
-end)
-
-
---[[
-    victim:StripWeapons()
-    victim:StripAmmo()
-
-    timer.Simple(3, function()
-        victim:SetWalkSpeed("300")
-        victim:SetRunSpeed("300")
-        victim:Give("khr_gsh18")
-        victim:SetAmmo(150, "9x19MM", true)
-    end)
-
---[[ply:StripWeapon("weapon_shotgun")
-        ply:StripWeapon("weapon_smg1")
-        ply:StripWeapon("weapon_357")
-        ply:StripWeapon("weapon_crowbar")
-        ply:StripWeapon("weapon_pistol")
-        ply:StripWeapon("weapon_physcannon")
-        ply:StripWeapon("weapon_crossbow")
-        ply:StripWeapon("weapon_rpg")
-        ply:StripWeapon("weapon_ar2")
-        ply:StripWeapon("weapon_frag")
---hook.Add("PlayerDeath", "wennderspielerstirbt", function(victim, inflictor, attacker) --victim: --end)
-----------------------------------------------------------------------------------------------------------------------
-and SchoolS.Spieler[ply:SteamID64()].counter >= 10 then
----------------------
-timer.Simple(10, function()
-                    ply:Freeze(false)
-                end)
-
-                ply:Freeze(true)
-                ------------------------
-                hook.Add("Think", "Wennwellestartet", function()
-    if counterfuerdiewelle == 0 then
-        net.Start("pumped")
-        net.WriteBool(true)
-        net.Broadcast()
-
-        for i = 1, 30 do
-            timer.Simple(1, function()
-                if i <= 10 then
-                    local npc1 = ents.Create("npc_metropolice")
-                    npc1:SetPos(SchoolS.NPCSpawnPos[i])
-                    npc1:Spawn()
-                    npc1:Give("weapon_smg1")
-                elseif i <= 20 and i > 10 then
-                    local npc2 = ents.Create("weapon_shotgun")
-                    npc2:SetPos(SchoolS.NPCSpawnPos[i])
-                    npc2:Spawn()
-                    npc1:Give("weapon_smg1")
-                elseif i <= 30 and i > 20 then
-                    local npc3 = ents.Create("npc_metropolice")
-                    npc3:SetPos(SchoolS.NPCSpawnPos[i])
-                    npc3:Spawn()
-                    npc1:Give("weapon_smg1")
-                    counterfuerdiewelle = 30
-                end
-            end)
-        end
-    else
-        return false
-    end
-end)
---------------------------------------------------
-        timer.Create("freezen", 15, 2, function()
-            local freezer = 0
-
-            if freezer == 0 then
-                ply:Freeze(true)
-                freezer = freezer + 1
-            elseif freezer == 1 then
-                ply:Freeze(false)
-            end
-_________________________________________
-    elseif string.lower(text) == agil then
-        ply:StripWeapons
-        ply:GetModel("models/player/dewobedil/sharo_kirima/maid_p.mdl")
-        ply:StripAmmo
-and SchoolS.Spieler[ply:SteamID64()].counter >= 10 then
----------------------
-npc_sharo_kirima_maid_e
----------------------
-76561198063946583
---------------------
-if SchoolS.Spieler[attacker:SteamID64()].counter <= 10 then
-            attacker:ChatPrint("Du hast nun die Wahl zwischen heavy sowie agil! Diese beiden Klassen bilden den Anfang umd verbessern sich je nach abgeschlossener Anzahl an erlegten Gegnern.")
-        end]]
---------------------------------------
---   timer.Simple(5, function()
---   timer.Stop("heavy1timer")
---   ply:Freeze(false)
---  end)
---        timer.Simple(5, function()
---   timer.Stop("heavy1timer")
---   ply:Freeze(false)
--- end)
---  timer.Create("heavy1timer", 2, 2)]]
+]=]
